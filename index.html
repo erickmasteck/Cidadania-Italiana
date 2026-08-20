@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linha de Descendência — Cidadania Italiana · Família Da Roda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #F1E8D5;
+    --paper-deep: #E7D9BC;
+    --card: #FBF6EA;
+    --ink: #2B2116;
+    --ink-soft: #6B5D48;
+    --line: #C9B78F;
+    --seal-red: #8C3123;
+    --seal-red-soft: #B0523C;
+    --forest: #3C5E42;
+    --gold: #A9781F;
+    --done-bg: #DCE7D6;
+    --done-text: #2E4E32;
+    --done-dot: #4C7A4F;
+    --pending-bg: #F1E0AE;
+    --pending-text: #6E4B0B;
+    --pending-dot: #B4842A;
+    --missing-bg: #EFCFC3;
+    --missing-text: #7B2C1C;
+    --missing-dot: #9C3B26;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at top left, rgba(255,255,255,0.35), transparent 55%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Source Serif 4', Georgia, serif;
+    line-height:1.5;
+    padding:0 0 80px;
+  }
+
+  a{ color:inherit; }
+
+  .tricolor{
+    height:5px;
+    width:100%;
+    background:linear-gradient(90deg, var(--forest) 0 33.3%, #F4EEDD 33.3% 66.6%, var(--seal-red) 66.6% 100%);
+  }
+
+  header.hero{
+    max-width:920px;
+    margin:0 auto;
+    padding:52px 28px 30px;
+    text-align:center;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--seal-red);
+    margin-bottom:14px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:clamp(30px, 5vw, 46px);
+    margin:0 0 10px;
+    letter-spacing:-0.01em;
+  }
+  h1 em{
+    font-style:italic;
+    font-weight:500;
+    color:var(--seal-red-soft);
+  }
+  .lineage-path{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-bottom:26px;
+    letter-spacing:.02em;
+  }
+  .lineage-path .arrow{ color:var(--line); margin:0 6px; }
+
+  .progress-wrap{
+    max-width:640px;
+    margin:0 auto;
+    text-align:left;
+  }
+  .progress-caption{
+    display:flex;
+    justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-bottom:7px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .progress-bar{
+    height:12px;
+    border-radius:7px;
+    overflow:hidden;
+    display:flex;
+    border:1px solid var(--line);
+    background:var(--card);
+  }
+  .progress-bar span{ display:block; height:100%; }
+  .seg-done{ background:var(--done-dot); }
+  .seg-pending{ background:var(--pending-dot); }
+  .seg-missing{ background:var(--missing-dot); }
+  .progress-legend{
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-top:16px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+  }
+  .progress-legend .dot{
+    display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px;
+  }
+
+  main{ max-width:900px; margin:0 auto; padding:10px 24px 0; }
+
+  /* ---- Trunk ---- */
+  .trunk{ position:relative; padding-left:34px; margin-top:36px;}
+  .trunk::before{
+    content:"";
+    position:absolute;
+    left:11px; top:6px; bottom:6px;
+    width:3px;
+    background-image: repeating-linear-gradient(to bottom, var(--seal-red-soft) 0 8px, transparent 8px 14px);
+    border-radius:2px;
+  }
+  .node-dot{
+    position:absolute; left:0; top:26px;
+    width:24px; height:24px; border-radius:50%;
+    border:3px solid var(--card);
+    box-shadow:0 0 0 2px var(--line);
+  }
+  .node-dot.status-done{ background:var(--done-dot); }
+  .node-dot.status-pending{ background:var(--pending-dot); }
+  .node-dot.status-missing{ background:var(--missing-dot); }
+
+  .person{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    margin-bottom:22px;
+    box-shadow:0 1px 0 rgba(43,33,22,0.05);
+  }
+  .person-head{
+    padding:16px 20px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    cursor:pointer;
+    list-style:none;
+  }
+  .person-head::-webkit-details-marker{ display:none; }
+  .person-head:hover{ background:rgba(140,49,35,0.04); }
+  .person-name-block{ display:flex; flex-direction:column; gap:3px; }
+  .person-name{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:19px;
+  }
+  .person-meta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+  }
+  .person-tags{ display:flex; gap:8px; align-items:center; }
+  .chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    padding:4px 9px;
+    border-radius:20px;
+    white-space:nowrap;
+    letter-spacing:.02em;
+  }
+  .chip-done{ background:var(--done-bg); color:var(--done-text); }
+  .chip-pending{ background:var(--pending-bg); color:var(--pending-text); }
+  .chip-missing{ background:var(--missing-bg); color:var(--missing-text); }
+  .caret{
+    font-size:13px; color:var(--ink-soft);
+    transition:transform .2s ease;
+    margin-left:4px;
+  }
+  details[open] .caret{ transform:rotate(90deg); }
+
+  .doc-table{
+    border-top:1px dashed var(--line);
+    padding:4px 20px 18px;
+  }
+  .doc-row{
+    display:grid;
+    grid-template-columns: 26px 1fr;
+    gap:10px;
+    padding:12px 0;
+    border-bottom:1px solid rgba(201,183,143,0.5);
+  }
+  .doc-row:last-child{ border-bottom:none; }
+  .doc-dot{ width:9px; height:9px; border-radius:50%; margin-top:7px; }
+  .doc-dot.status-done{ background:var(--done-dot); }
+  .doc-dot.status-pending{ background:var(--pending-dot); }
+  .doc-dot.status-missing{ background:var(--missing-dot); }
+  .doc-title{
+    font-weight:600;
+    font-size:14.5px;
+    margin-bottom:3px;
+  }
+  .doc-fields{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    line-height:1.7;
+  }
+  .doc-fields b{ color:var(--ink); font-weight:600;}
+  .doc-note{
+    font-family:'Source Serif 4', serif;
+    font-size:13px;
+    font-style:italic;
+    color:var(--ink-soft);
+    margin-top:5px;
+  }
+
+  /* ---- Branch fork ---- */
+  .fork-label{
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:var(--seal-red);
+    margin:6px 0 8px;
+  }
+  .fork-svg{ display:block; margin:0 auto; }
+
+  .branches{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:26px;
+    margin-top:6px;
+  }
+  @media (max-width:680px){
+    .branches{ grid-template-columns:1fr; }
+  }
+  .branch-col{
+    border-left:3px solid var(--line);
+    padding-left:22px;
+    position:relative;
+  }
+  .branch-col.erick{ border-left-color: rgba(140,49,35,0.55); }
+  .branch-col.claiton{ border-left-color: rgba(60,94,66,0.55); }
+  .branch-title{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:16px;
+    margin-bottom:14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .branch-title .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    background:var(--paper-deep);
+    border:1px solid var(--line);
+    padding:2px 8px;
+    border-radius:20px;
+    color:var(--ink-soft);
+  }
+  .branch-col .person{ margin-bottom:16px; }
+
+  /* ---- Next steps ---- */
+  .next-steps{
+    margin-top:52px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:26px 26px 20px;
+  }
+  .next-steps h2{
+    font-family:'Fraunces', serif;
+    font-size:20px;
+    margin:0 0 16px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .next-steps h2::before{
+    content:"";
+    display:inline-block;
+    width:9px; height:9px; border-radius:50%;
+    background:var(--seal-red);
+  }
+  ol{ margin:0; padding-left:20px; }
+  ol li{ margin-bottom:11px; font-size:14.5px; }
+  ol li b{ color:var(--seal-red-soft); }
+
+  footer{
+    max-width:900px;
+    margin:36px auto 0;
+    padding:0 24px;
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .caret{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="tricolor"></div>
+
+<header class="hero">
+  <div class="eyebrow">Reconhecimento de Cidadania Italiana &middot; Iure Sanguinis</div>
+  <h1>A linha de <em>Luigi da Roda</em><br>até hoje</h1>
+  <div class="lineage-path">
+    Luigi da Roda <span class="arrow">→</span> José Daroda <span class="arrow">→</span> Benjamim Luiz Daroda <span class="arrow">→</span> Nilva Daroda <span class="arrow">→</span> Rute / Claiton <span class="arrow">→</span> Erick &amp; Valentim / Itor &amp; Benjamin
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-caption">
+      <span>Progresso da documentação</span>
+      <span>14 completos · 7 pendentes · 1 faltando</span>
+    </div>
+    <div class="progress-bar" role="img" aria-label="14 documentos completos, 7 pendentes, 1 faltando, de 22 no total">
+      <span class="seg-done" style="width:64%"></span>
+      <span class="seg-pending" style="width:31%"></span>
+      <span class="seg-missing" style="width:5%"></span>
+    </div>
+    <div class="progress-legend">
+      <span><span class="dot" style="background:var(--done-dot)"></span>Temos / apostilado</span>
+      <span><span class="dot" style="background:var(--pending-dot)"></span>Precisa reemitir ou tem pendência</span>
+      <span><span class="dot" style="background:var(--missing-dot)"></span>Falta / a solicitar</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ================= TRUNK ================= -->
+  <div class="trunk">
+
+    <!-- LUIGI -->
+    <div class="node-dot status-pending"></div>
+    <details class="person" open>
+      <summary class="person-head">
+        <div class="person-name-block">
+          <div class="person-name">Luigi da Roda</div>
+          <div class="person-meta">Lago, Revine Lago (TV) · 06/08/1863 &nbsp;—&nbsp; Santa Maria/RS · 08/09/1918</div>
+        </div>
+        <div class="person-tags"><span class="chip chip-pending">3 de 4 prontos</span><span class="caret">›</span></div>
+      </summary>
+      <div class="doc-table">
+        <div class="doc-row">
+          <div class="doc-dot status-done"></div>
+          <div>
+            <div class="doc-title">Certificato di Battesimo (Itália)</div>
+            <div class="doc-fields">Parrocchia San Giorgio Martire, Lago &middot; <b>Data:</b> 06/08/1863</div>
+            <div class="doc-note">Emitido pela Diocesi di Vittorio Veneto, 08/02/2019 — temos, apostilado.</div>
+          </div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-dot status-done"></div>
+          <div>
+            <div class="doc-title">Certidão de Casamento &middot; c/ Giovanna Milani</div>
+            <div class="doc-fields"><b>Matrícula</b> 101899 01 55 1897 2 00001 183 0000211 79 &middot; <b>Livro</b> B-1 &middot; <b>Folha</b> 183V &middot; <b>Termo</b> 211 &middot; <b>Data</b> 11/03/1897 &middot; Silveira Martins/RS</div>
+            <div class="doc-note">Via com averbação de retificação de idade (33 anos), de 27/06/2019, é a mais completa — temos, apostilada.</div>
+          </div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-dot status-done"></div>
+          <div>
+            <div class="doc-title">Certidão de Óbito</div>
+            <div class="doc-fields"><b>Matrícula</b> 101212 01 55 1918 4 00001 135 0000324 15 &middot; <b>Livro</b> C-1 &middot; <b>Folha</b> 135 &middot; <b>Termo</b> 324 &middot; <b>Registro</b> 09/09/1918 &middot; Santa Maria/RS</div>
+            <div class="doc-note">Óbito em 08/09/1918, aos 55 anos; nome e filiação retificados em 2019 — temos, apostilado.</div>
+          </div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-dot status-pending"></div>
+          <div>
+            <div class="doc-title">Certidão Negativa de Naturalização (CNN)</div>
+            <div class="doc-fields"><b>Nº</b> 000.018.186.758/2019 &middot; <b>Emitida</b> 08/07/2019 &middot; Ministério da Justiça e Segurança Pública</div>
+            <div class="doc-note">Emitida em 2019 para o Claiton — desatualizada. Precisa ser reemitida para cada requerente atual. Atenção: o sistema atual exige uma emissão separada por variação de nome (Luigi da Roda / Luiz Darodda / Luiz da Roda).</div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- JOSÉ -->
+    <div class="node-dot status-missing"></div>
+    <details class="person">
+      <summary class="person-head">
+        <div class="person-name-block">
+          <div class="person-name">José Daroda &times; Angela Mott</div>
+          <div class="person-meta">Silveira Martins/RS · n. 18/03/1898</div>
+        </div>
+        <div class="person-tags"><span class="chip chip-missing">1 de 3 prontos</span><span class="caret">›</span></div>
+      </summary>
+      <div class="doc-table">
+        <div class="doc-row">
+          <div class="doc-dot status-done"></div>
+          <div>
+            <div class="doc-title">Certidão de Nascimento</div>
+            <div class="doc-fields"><b>Matrícula</b> 101899 01 55 1898 1 00007 005 0002928 74 &middot; <b>Livro</b> A-7 &middot; <b>Folha</b> 5V &middot; <b>Termo</b> 2928 &middot; <b>Registro</b> 19/03/1898 &middot; Silveira Martins/RS</div>
+            <div class="doc-note">Filho de Luigi Daroda e Giovanna (Milani) — temos, apostilado.</div>
+          </div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-dot status-pending"></div>
+          <div>
+            <div class="doc-title">Certidão de Casamento &middot; c/ Angela Mott</div>
+            <div class="doc-fields"><b>Termo</b> 237 &middot; Santa Maria da Boca do Monte/RS &middot; matrícula ilegível na foto</div>
+            <div class="doc-note">Temos a foto do livro manuscrito antigo, mas parte dos dados está ilegível. Pedir 2ª via legível ao cartório usando o nº do termo.</div>
+          </div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-dot status-missing"></div>
+          <div>
+            <div class="doc-title">Certidão de Óbito</div>
+            <div class="doc-fields">Local e data ainda não localizados</div>
+            <div class="doc-note">Confirmado como falecido. Falta descobrir onde e quando para localizar o cartório certo — buscar no FamilySearch ou perguntar ao Claiton.</div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- BENJAMIM -->
+    <div class="node-dot status-pending"></div>
+    <details class="person">
+      <summary class="person-head">
+        <div class="person-name-block">
+          <div class="person-name">Benjamim Luiz Daroda &times; Almira Varella da Silva</div>
+          <div class="person-meta">Limeira/Cruzeiro (hoje Joaçaba/SC) · n. 31/10/1922 &nbsp;—&nbsp; Apucarana/PR · f. 12/10/2003</div>
+        </div>
+        <div class="person-tags"><span class="chip chip-pending">2 de 3 prontos</span><span class="caret">›</span></div>
+      </summary>
+      <div class="doc-table">
+        <div class="doc-row">
+          <div class="doc-dot status-done"></div>
+          <div>
+            <div class="doc-title">Certidão de Nascimento</div>
+            <div class="doc-fields"><b>Matrícula</b> 107797 01 55 1922 1 00002 008 0000629 04 &middot; <b>Livro</b> A-02 &middot; <b>Folha</b> 8 &middot; <b>Termo</b> 629 &middot; <b>Data</b> 31/10/1922 &middot; Distrito de Limeira, Comarca de Cruzeiro/Campos Novos</div>
+            <div class="doc-note">Filho de José Da Roda e Angelina Duanzella Mott — temos, apostilado.</div>
+          </div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-dot status-done"></div>
+          <div>
+            <div class="doc-title">Certidão de Casamento &middot; c/ Almira Varella da Silva</div>
+            <div class="doc-fields"><b>Matrícula</b> 150136 01 55 1944 2 00003 196 0000209 38 &middot; <b>Livro</b> B-3 &middot; <b>Folha</b> 196 &middot; <b>Termo</b> 209 &middot; <b>Data</b> 02/04/1944 &middot; Herval d'Oeste/SC</div>
+            <div class="doc-note">Almira faleceu 24/04/2014 — temos, apostilada.</div>
+          </div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-dot status-pending"></div>
+          <div>
+            <div class="doc-title">Certidão de Óbito</div>
+            <div class="doc-fields"><b>Livro</b> C-36 &middot; <b>Folha</b> 8 &middot; <b>Nº</b> 18069 &middot; <b>Registro</b> 13/10/2003 (óbito 12/10/2003) &middot; Apucarana/PR</div>
+            <div class="doc-note">Hoje só consta averbado nas certidões de nascimento/casamento dele. Verificar se o processo exige a certidão autônoma.</div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- NILVA -->
+    <div class="node-dot status-pending"></div>
+    <details class="person">
+      <summary class="person-head">
+        <div class="person-name-block">
+          <div class="person-name">Nilva Daroda &times; José Carlos Fernandes Santos</div>
+          <div class="person-meta">Apucarana/PR · n. 16/08/1947 &nbsp;—&nbsp; viva</div>
+        </div>
+        <div class="person-tags"><span class="chip chip-pending">2 de 2, c/ pendência</span><span class="caret">›</span></div>
+      </summary>
+      <div class="doc-table">
+        <div class="doc-row">
+          <div class="doc-dot status-done"></div>
+          <div>
+            <div class="doc-title">Certidão de Nascimento</div>
+            <div class="doc-fields"><b>Matrícula</b> 08523301551947100005241000446251 &middot; <b>Livro</b> A-5 &middot; <b>Folha</b> 241 &middot; <b>Nº</b> 4462 &middot; <b>Registro</b> 16/09/1947 (nasc. 16/08/1947) &middot; Apucarana/PR</div>
+            <div class="doc-note">Filha de Benjamim Luiz Daroda e Almira Varella da Silva Daroda — temos, apostilada.</div>
+          </div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-dot status-pending"></div>
+          <div>
+            <div class="doc-title">Certidão de Casamento (com averbação de divórcio)</div>
+            <div class="doc-fields"><b>Livro</b> B-25 &middot; <b>Folha</b> 166 &middot; <b>Termo</b> 8065 &middot; <b>Data</b> 29/12/1964 ou 1965 &middot; Apucarana/PR</div>
+            <div class="doc-note">2ª via do cartório indica 1964; a averbação na certidão de nascimento da Nilva indica 1965 — checar/retificar. Divorciados em 2005.</div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+  </div><!-- /trunk -->
+
+  <!-- ================= FORK ================= -->
+  <div class="fork-label">a linha se divide aqui</div>
+  <svg class="fork-svg" width="220" height="46" viewBox="0 0 220 46" fill="none">
+    <path d="M110 0 V14 M110 14 C110 14 110 26 55 26 S0 26 0 40 M110 14 C110 14 110 26 165 26 S220 26 220 40"
+      stroke="#B0523C" stroke-width="3" stroke-dasharray="7 5" stroke-linecap="round"/>
+  </svg>
+
+  <div class="branches">
+
+    <!-- ==== RAMO ERICK ==== -->
+    <div class="branch-col erick">
+      <div class="branch-title">Ramo Erick <span class="tag">requerente</span></div>
+
+      <details class="person">
+        <summary class="person-head">
+          <div class="person-name-block">
+            <div class="person-name">Rute Fernandes dos Santos</div>
+            <div class="person-meta">Araruva → Marilândia do Sul/PR · n. 28/07/1968</div>
+          </div>
+          <div class="person-tags"><span class="chip chip-done">2 de 2</span><span class="caret">›</span></div>
+        </summary>
+        <div class="doc-table">
+          <div class="doc-row">
+            <div class="doc-dot status-done"></div>
+            <div>
+              <div class="doc-title">Certidão de Nascimento</div>
+              <div class="doc-fields"><b>Nascimento nº</b> 17.001 &middot; <b>Livro</b> 17 &middot; <b>Folha</b> 38 &middot; <b>Data</b> 28/07/1968 &middot; Araruva (hoje Marilândia do Sul/PR)</div>
+              <div class="doc-note">Filha de José Carlos Fernandes dos Santos e Nilva Daroda dos Santos.</div>
+            </div>
+          </div>
+          <div class="doc-row">
+            <div class="doc-dot status-done"></div>
+            <div>
+              <div class="doc-title">Certidão de Casamento (com averbação de divórcio) &middot; c/ Amilto Francisco Prestes</div>
+              <div class="doc-fields"><b>Matrícula</b> 129742 01 55 2005 2 00036 164 0007923 67 &middot; <b>Folha</b> 164 &middot; <b>Termo</b> 7923 &middot; <b>Data</b> 28/02/2005 &middot; Curitiba/PR</div>
+              <div class="doc-note">Não alterou o sobrenome. Divorciados em 13/04/2022 — temos, apostilada.</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="person">
+        <summary class="person-head">
+          <div class="person-name-block">
+            <div class="person-name">Erick Fernandes Masteck × Ana Paula de Andrade Masteck</div>
+            <div class="person-meta">Curitiba/PR · n. 26/03/1990 · requerente principal</div>
+          </div>
+          <div class="person-tags"><span class="chip chip-done">2 de 2</span><span class="caret">›</span></div>
+        </summary>
+        <div class="doc-table">
+          <div class="doc-row">
+            <div class="doc-dot status-done"></div>
+            <div>
+              <div class="doc-title">Certidão de Nascimento</div>
+              <div class="doc-fields"><b>Matrícula</b> 130518 01 55 1990 1 00132 055 0015521 16 &middot; <b>Livro</b> 132 &middot; <b>Folha</b> 55 &middot; <b>Data</b> 26/03/1990 &middot; Curitiba/PR</div>
+              <div class="doc-note">Filho de José Carlos Masteck e Rute Fernandes dos Santos. Avós paternos: Acyr Masteck e Izolete Pinto Pencai — temos, completa.</div>
+            </div>
+          </div>
+          <div class="doc-row">
+            <div class="doc-dot status-done"></div>
+            <div>
+              <div class="doc-title">Certidão de Casamento</div>
+              <div class="doc-fields"><b>Matrícula</b> 082404 01 55 2013 2 00080 282 0007752 37 &middot; <b>Folha</b> 282 &middot; <b>Termo</b> 7752 &middot; <b>Data</b> 12/07/2013 &middot; Curitiba/PR</div>
+              <div class="doc-note">Regime de separação de bens, com Ana Paula de Andrade Masteck — mãe do Valentim. Temos, completa.</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="person">
+        <summary class="person-head">
+          <div class="person-name-block">
+            <div class="person-name">Valentim de Andrade Masteck</div>
+            <div class="person-meta">Curitiba/PR · n. 05/03/2019 · filho do Erick</div>
+          </div>
+          <div class="person-tags"><span class="chip chip-done">1 de 1</span><span class="caret">›</span></div>
+        </summary>
+        <div class="doc-table">
+          <div class="doc-row">
+            <div class="doc-dot status-done"></div>
+            <div>
+              <div class="doc-title">Certidão de Nascimento</div>
+              <div class="doc-fields"><b>Matrícula</b> 083261 01 55 2019 1 00129 051 0047938 13 &middot; <b>Livro</b> 129 &middot; <b>Folha</b> 51 &middot; 05/03/2019, 18h &middot; Hospital e Maternidade Nossa Senhora de Fátima, Curitiba/PR</div>
+              <div class="doc-note">Filho de Erick Fernandes Masteck e Ana Paula de Andrade Masteck. Avós: José Carlos Masteck, Rute Fernandes dos Santos e Maria Romana Andrade Moreira — temos a certidão completa.</div>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- ==== RAMO CLAITON ==== -->
+    <div class="branch-col claiton">
+      <div class="branch-title">Ramo Claiton <span class="tag">tio</span></div>
+
+      <details class="person">
+        <summary class="person-head">
+          <div class="person-name-block">
+            <div class="person-name">Claiton Fernandes Santos &times; Fabiana de Toni</div>
+            <div class="person-meta">Curitiba/PR · n. 19/01/1977</div>
+          </div>
+          <div class="person-tags"><span class="chip chip-done">2 de 2</span><span class="caret">›</span></div>
+        </summary>
+        <div class="doc-table">
+          <div class="doc-row">
+            <div class="doc-dot status-done"></div>
+            <div>
+              <div class="doc-title">Certidão de Nascimento</div>
+              <div class="doc-fields"><b>Matrícula</b> 080457 01 55 1977 1 00018 034 0006133 91 &middot; <b>Livro</b> A-18 &middot; <b>Folha</b> 34 &middot; <b>Termo</b> 6133 &middot; <b>Data</b> 19/01/1977 &middot; Curitiba/PR</div>
+              <div class="doc-note">Filho de José Carlos Fernandes Santos e Nilva Daroda dos Santos — temos, apostilada e traduzida ao italiano.</div>
+            </div>
+          </div>
+          <div class="doc-row">
+            <div class="doc-dot status-done"></div>
+            <div>
+              <div class="doc-title">Certidão de Casamento</div>
+              <div class="doc-fields"><b>Matrícula</b> 129759 01 55 2004 3 00027 282 0015880 21 &middot; <b>Livro</b> BA-27 &middot; <b>Folha</b> 282 &middot; <b>Termo</b> 15880 &middot; <b>Data</b> 16/10/2004 &middot; Curitiba/PR</div>
+              <div class="doc-note">Casamento religioso c/ efeito civil, regime de separação de bens — temos, apostilada e traduzida.</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="person">
+        <summary class="person-head">
+          <div class="person-name-block">
+            <div class="person-name">Itor de Toni Neto</div>
+            <div class="person-meta">Curitiba/PR · n. 15/05/2007</div>
+          </div>
+          <div class="person-tags"><span class="chip chip-pending">dados prontos</span><span class="caret">›</span></div>
+        </summary>
+        <div class="doc-table">
+          <div class="doc-row">
+            <div class="doc-dot status-pending"></div>
+            <div>
+              <div class="doc-title">Certidão de Nascimento</div>
+              <div class="doc-fields"><b>C.NASC</b> 94707 &middot; <b>Livro</b> 266A &middot; <b>Folha</b> 207 &middot; 4º Ofício de Curitiba/PR</div>
+              <div class="doc-note">Dados extraídos do RG 13.788.736-3. Temos o que precisa para solicitar — falta pedir a certidão em si.</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="person">
+        <summary class="person-head">
+          <div class="person-name-block">
+            <div class="person-name">Benjamin de Toni Santos</div>
+            <div class="person-meta">Curitiba/PR · n. 12/12/2005</div>
+          </div>
+          <div class="person-tags"><span class="chip chip-pending">dados prontos</span><span class="caret">›</span></div>
+        </summary>
+        <div class="doc-table">
+          <div class="doc-row">
+            <div class="doc-dot status-pending"></div>
+            <div>
+              <div class="doc-title">Certidão de Nascimento</div>
+              <div class="doc-fields"><b>C.NASC</b> 84360 &middot; <b>Livro</b> 232A &middot; <b>Folha</b> 80 &middot; 4º Ofício de Curitiba/PR</div>
+              <div class="doc-note">Dados extraídos do RG 10.965.202-4. Temos o que precisa para solicitar — falta pedir a certidão em si.</div>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+  </div><!-- /branches -->
+
+  <!-- ================= NEXT STEPS ================= -->
+  <div class="next-steps">
+    <h2>Próximos passos</h2>
+    <ol>
+      <li><b>Confirmar com o Claiton</b> — óbito do José Daroda, óbito autônomo do Benjamim, e se ele já tem esses documentos do processo anterior dele.</li>
+      <li><b>Resolver a divergência de data</b> no casamento José Carlos × Nilva (1964 x 1965) antes de enviar à Cidadania4U.</li>
+      <li><b>Localizar o óbito do José Daroda</b> — tentar no FamilySearch (Santa Maria/RS tem registros digitalizados) ou perguntar à família.</li>
+      <li><b>Reemitir a CNN do Luigi da Roda</b> — atenção às variações de nome (Luigi da Roda / Luiz Darodda / Luiz da Roda), já traduzir e apostilar.</li>
+      <li><b>Solicitar as certidões de nascimento</b> do Itor e do Benjamin no 4º Ofício de Curitiba/PR, usando os dados do RG.</li>
+      <li><b>Subir tudo na plataforma da Cidadania4U</b> assim que cada item estiver com o status verde.</li>
+    </ol>
+  </div>
+
+</main>
+
+<footer>
+  Painel de acompanhamento — Processo de Cidadania Italiana, família Da Roda / Daroda / Fernandes Santos / Masteck &middot; atualizado conforme documentos recebidos
+</footer>
+
+</body>
+</html>
